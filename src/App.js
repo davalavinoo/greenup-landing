@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { storage, db } from "./firebase"; // Make sure this file exists with your config
+import { storage, db } from "./firebase";
+import StudentDashboard from './StudentDashboard'; // Make sure this file exists
 import './App.css';
-//import { getAuth, signInAnonymously } from "firebase/auth";
 
-function App() {
+function HomePage() {
   const [photo, setPhoto] = useState(null);
   const [description, setDescription] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -17,7 +18,6 @@ function App() {
       setErrorMessage("Please select a plant photo first!");
       return;
     }
-
     if (!description.trim()) {
       setErrorMessage("Please describe the plant issue.");
       return;
@@ -28,18 +28,15 @@ function App() {
     setSuccessMessage("");
 
     try {
-      // Upload photo to Firebase Storage
       const storageRef = ref(storage, `plant-issues/${Date.now()}_${photo.name}`);
       await uploadBytes(storageRef, photo);
       const photoURL = await getDownloadURL(storageRef);
 
-      // Save submission to Firestore
       await addDoc(collection(db, "plantSubmissions"), {
         photoURL,
         description,
         createdAt: serverTimestamp(),
-        status: "pending",           // Will be changed by students later
-        userEmail: "anonymous",      // You can replace with auth later
+        status: "pending"
       });
 
       setSuccessMessage("Thank you! Your plant issue has been submitted successfully. A student will review it soon 🌱");
@@ -47,7 +44,7 @@ function App() {
       setDescription("");
     } catch (error) {
       console.error("Upload failed:", error);
-      setErrorMessage("Upload failed. Please try again or check your connection.");
+      setErrorMessage("Upload failed. Please try again.");
     } finally {
       setUploading(false);
     }
@@ -67,8 +64,6 @@ function App() {
 
         <div className="inspiration">
           <h3>Inspired by real plant lovers</h3>
-
-          {/* Image gallery - real plant care inspiration */}
           <div className="image-gallery">
             <img 
               src="https://hips.hearstapps.com/hmg-prod/images/young-woman-caring-her-plants-at-home-royalty-free-image-1752585749.pjpeg" 
@@ -88,7 +83,6 @@ function App() {
           </div>
         </div>
 
-        {/* Upload Form */}
         <div className="upload-section">
           <h3>Got a sick or struggling plant? Get expert organic advice now!</h3>
           <p>Upload a clear photo + describe the issue (yellow leaves, spots, wilting, etc.)</p>
@@ -112,16 +106,14 @@ function App() {
             }}
           />
 
-          {errorMessage && (
-            <p style={{ color: "#d32f2f", margin: "10px 0" }}>{errorMessage}</p>
-          )}
+          {errorMessage && <p style={{ color: "#d32f2f", margin: "10px 0" }}>{errorMessage}</p>}
 
           <button 
             className="upload-btn"
             onClick={handleSubmit}
             disabled={uploading}
           >
-            {uploading ? "Submitting..." : "Submit for Organic Advice (₹99)"}
+            {uploading ? "Submitting..." : "Submit for Organic Advice"}
           </button>
 
           {successMessage && (
@@ -132,8 +124,26 @@ function App() {
         </div>
 
         <p className="tagline">We don’t sell plants. We save plants. 💚</p>
+
+        {/* Temporary link to student dashboard */}
+        <div style={{ margin: '30px 0' }}>
+          <Link to="/student" style={{ color: '#4caf50', fontSize: '1.2rem', fontWeight: 'bold', textDecoration: 'underline' }}>
+            → Go to Student Dashboard (for reviewing cases)
+          </Link>
+        </div>
       </header>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/student" element={<StudentDashboard />} />
+      </Routes>
+    </Router>
   );
 }
 
