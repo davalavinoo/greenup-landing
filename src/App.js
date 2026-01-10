@@ -3,9 +3,68 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { storage, db } from "./firebase";
-import StudentDashboard from './StudentDashboard'; // Make sure this file exists
+import StudentDashboard from './StudentDashboard';
+import AllQueries from './AllQueries';
 import './App.css';
 
+// Reusable Footer Component
+const Footer = () => (
+  <footer style={{
+    backgroundColor: '#2e7d32',
+    color: 'white',
+    textAlign: 'center',
+    padding: '20px 10px',
+    marginTop: 'auto',
+    fontSize: '0.95rem',
+    borderTop: '4px solid #4caf50'
+  }}>
+    <p>
+      Developed and maintained by <strong>St. Ann's Incubation Foundation (SAIF)</strong>, 
+      St. Ann's Degree College for Women, Mehdipatnam, Hyderabad.
+    </p>
+    <p style={{ marginTop: '8px', fontSize: '0.9rem' }}>
+      Presentation by: Ashwala Harshitha
+    </p>
+  </footer>
+);
+
+// Reusable Layout with Home button + Footer
+const Layout = ({ children }) => (
+  <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    {/* Fixed Home Button */}
+    <Link 
+      to="/" 
+      style={{
+        position: 'fixed',
+        top: '20px',
+        left: '20px',
+        backgroundColor: '#4caf50',
+        color: 'white',
+        padding: '12px 24px',
+        borderRadius: '50px',
+        textDecoration: 'none',
+        fontWeight: 'bold',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+        zIndex: 1000,
+        transition: 'background 0.3s'
+      }}
+      onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#388e3c'}
+      onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4caf50'}
+    >
+      🏠 Home
+    </Link>
+
+    {/* Page Content */}
+    <main style={{ flex: 1 }}>
+      {children}
+    </main>
+
+    {/* Footer */}
+    <Footer />
+  </div>
+);
+
+// Home Page Content
 function HomePage() {
   const [photo, setPhoto] = useState(null);
   const [description, setDescription] = useState("");
@@ -65,21 +124,9 @@ function HomePage() {
         <div className="inspiration">
           <h3>Inspired by real plant lovers</h3>
           <div className="image-gallery">
-            <img 
-              src="https://hips.hearstapps.com/hmg-prod/images/young-woman-caring-her-plants-at-home-royalty-free-image-1752585749.pjpeg" 
-              alt="Woman caring for plants" 
-              className="gallery-img" 
-            />
-            <img 
-              src="https://www.decorilla.com/online-decorating/wp-content/uploads/2021/07/Lucious-plants-in-interior-design-1.jpeg" 
-              alt="Beautiful indoor plant arrangement" 
-              className="gallery-img" 
-            />
-            <img 
-              src="https://extension.psu.edu/media/catalog/product/c/a/cad74bc2b228547be22685cba0ec7ac4.jpeg?quality=80&bg-color=248,248,248&fit=bounds&height=427&width=640&canvas=640:427" 
-              alt="Examining plant leaves for disease" 
-              className="gallery-img" 
-            />
+            <img src="https://hips.hearstapps.com/hmg-prod/images/young-woman-caring-her-plants-at-home-royalty-free-image-1752585749.pjpeg" alt="Woman caring for plants" className="gallery-img" />
+            <img src="https://www.decorilla.com/online-decorating/wp-content/uploads/2021/07/Lucious-plants-in-interior-design-1.jpeg" alt="Beautiful indoor plant arrangement" className="gallery-img" />
+            <img src="https://extension.psu.edu/media/catalog/product/c/a/cad74bc2b228547be22685cba0ec7ac4.jpeg?quality=80&bg-color=248,248,248&fit=bounds&height=427&width=640&canvas=640:427" alt="Examining plant leaves for disease" className="gallery-img" />
           </div>
         </div>
 
@@ -125,10 +172,13 @@ function HomePage() {
 
         <p className="tagline">We don’t sell plants. We save plants. 💚</p>
 
-        {/* Temporary link to student dashboard */}
-        <div style={{ margin: '30px 0' }}>
-          <Link to="/student" style={{ color: '#4caf50', fontSize: '1.2rem', fontWeight: 'bold', textDecoration: 'underline' }}>
-            → Go to Student Dashboard (for reviewing cases)
+        {/* Navigation Links */}
+        <div style={{ margin: '40px 0', textAlign: 'center' }}>
+          <Link to="/student" style={{ color: '#4caf50', fontSize: '1.3rem', fontWeight: 'bold', margin: '0 20px', textDecoration: 'none' }}>
+            → Student Dashboard
+          </Link>
+          <Link to="/all-queries" style={{ color: '#4caf50', fontSize: '1.3rem', fontWeight: 'bold', margin: '0 20px', textDecoration: 'none' }}>
+            → Community Queries
           </Link>
         </div>
       </header>
@@ -140,8 +190,9 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/student" element={<StudentDashboard />} />
+        <Route path="/" element={<Layout><HomePage /></Layout>} />
+        <Route path="/student" element={<Layout><StudentDashboard /></Layout>} />
+        <Route path="/all-queries" element={<Layout><AllQueries /></Layout>} />
       </Routes>
     </Router>
   );
