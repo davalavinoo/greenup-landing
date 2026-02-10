@@ -6,6 +6,8 @@ import { storage, db } from "./firebase";
 import StudentDashboard from './StudentDashboard';
 import AllQueries from './AllQueries';
 import './App.css';
+import Shop from './Shop';
+
 
 // Reusable Footer Component
 const Footer = () => (
@@ -21,10 +23,7 @@ const Footer = () => (
     <p>
       Developed and maintained by <strong>St. Ann's Incubation Foundation (SAIF)</strong>, 
       St. Ann's Degree College for Women, Mehdipatnam, Hyderabad.
-    </p>
-    <p style={{ marginTop: '8px', fontSize: '0.9rem' }}>
-      Presentation by: Ashwala Harshitha
-    </p>
+    </p>    
   </footer>
 );
 
@@ -180,6 +179,9 @@ function HomePage() {
           <Link to="/all-queries" style={{ color: '#4caf50', fontSize: '1.3rem', fontWeight: 'bold', margin: '0 20px', textDecoration: 'none' }}>
             → Community Queries
           </Link>
+          <Link to="/shop" style={{ color: '#4caf50', fontSize: '1.3rem', fontWeight: 'bold', margin: '0 20px', textDecoration: 'none' }}>
+  → Shop Organic Products
+</Link>
         </div>
       </header>
     </div>
@@ -193,6 +195,7 @@ function App() {
         <Route path="/" element={<Layout><HomePage /></Layout>} />
         <Route path="/student" element={<Layout><StudentDashboard /></Layout>} />
         <Route path="/all-queries" element={<Layout><AllQueries /></Layout>} />
+        <Route path="/shop" element={<Layout><Shop /></Layout>} />
       </Routes>
     </Router>
   );
