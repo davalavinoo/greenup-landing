@@ -5,34 +5,33 @@ import Footer from './Footer';
 function Layout({ children }) {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Floating Home Button */}
-      <Link 
-        to="/" 
-        style={{
-          position: 'fixed',
-          top: '20px',
-          left: '20px',
-          backgroundColor: '#4caf50',
-          color: 'white',
-          padding: '12px 20px',
-          borderRadius: '50px',
-          textDecoration: 'none',
-          fontWeight: 'bold',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-          zIndex: 1000
-        }}
-      >
-        🏠 Home
-      </Link>
+  {/* Home Button */}
+  <Link 
+    to="/" 
+    style={{
+      position: 'fixed',
+      top: '15px',
+      left: '15px',
+      backgroundColor: '#4caf50',
+      color: 'white',
+      padding: '10px 18px',
+      borderRadius: '50px',
+      textDecoration: 'none',
+      fontWeight: 'bold',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+      zIndex: 1000,
+      fontSize: '0.95rem'  // Smaller on mobile
+    }}
+  >
+    🏠 Home
+  </Link>
 
-      {/* Main Content */}
-      <main style={{ flex: 1 }}>
-        {children}
-      </main>
+  <main style={{ flex: 1, padding: '70px 15px 15px' }}>  {/* Space for button */}
+    {children}
+  </main>
 
-      {/* Footer at bottom */}
-      <Footer />
-    </div>
+  <Footer />
+</div>
   );
 }
 
