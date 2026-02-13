@@ -1,38 +1,69 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, doc, increment, updateDoc, onSnapshot } from "firebase/firestore";
 import { storage, db } from "./firebase";
 import StudentDashboard from './StudentDashboard';
 import AllQueries from './AllQueries';
-import './App.css';
 import Shop from './Shop';
+import './App.css';
 
+// Reusable Footer with Visitor Count
+const Footer = () => {
+  const [visitorCount, setVisitorCount] = useState(0);
 
-// Reusable Footer Component
-const Footer = () => (
-  <footer style={{
-    backgroundColor: '#2e7d32',
-    color: 'white',
-    textAlign: 'center',
-    padding: '20px 10px',
-    marginTop: 'auto',
-    fontSize: '0.95rem',
-    borderTop: '4px solid #4caf50'
-  }}>
-    <p>
-      Developed and maintained by <strong>St. Ann's Incubation Foundation (SAIF)</strong>, 
-      St. Ann's Degree College for Women, Mehdipatnam, Hyderabad.
-    </p>    
-  </footer>
-);
+  useEffect(() => {
+    const visitorRef = doc(db, "stats", "visitors");
 
-// Reusable Layout with Home button + Footer
+    // Real-time listener for count
+    const unsubscribe = onSnapshot(visitorRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setVisitorCount(docSnap.data().count || 0);
+      }
+    });
+
+    // Increment count on first load
+    const incrementVisitor = async () => {
+      try {
+        await updateDoc(visitorRef, {
+          count: increment(1)
+        });
+      } catch (error) {
+        console.error("Failed to increment visitor count:", error);
+      }
+    };
+    incrementVisitor();
+
+    return unsubscribe;
+  }, []);
+
+  return (
+    <footer style={{
+      backgroundColor: '#2e7d32',
+      color: 'white',
+      textAlign: 'center',
+      padding: '20px 10px',
+      marginTop: 'auto',
+      fontSize: '0.95rem',
+      borderTop: '4px solid #4caf50'
+    }}>
+      <p>
+        Developed and maintained by <strong>St. Ann's Incubation Foundation (SAIF)</strong>, 
+        St. Ann's Degree College for Women, Mehdipatnam, Hyderabad.
+      </p>
+      <p style={{ marginTop: '8px' }}>
+        Visitors so far: <strong>{visitorCount.toLocaleString()}</strong> 🌱
+      </p>
+    </footer>
+  );
+};
+
+// Layout with Home button + Footer
 const Layout = ({ children }) => (
   <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
     {/* Fixed Home Button */}
-    <Link 
-      to="/" 
+    <Link
+      to="/"
       style={{
         position: 'fixed',
         top: '20px',
@@ -53,17 +84,15 @@ const Layout = ({ children }) => (
       🏠 Home
     </Link>
 
-    {/* Page Content */}
-    <main style={{ flex: 1 }}>
+    <main style={{ flex: 1, paddingTop: '80px' }}> {/* Space for fixed button */}
       {children}
     </main>
 
-    {/* Footer */}
     <Footer />
   </div>
 );
 
-// Home Page Content
+// Home Page
 function HomePage() {
   const [photo, setPhoto] = useState(null);
   const [description, setDescription] = useState("");
@@ -133,17 +162,17 @@ function HomePage() {
           <h3>Got a sick or struggling plant? Get expert organic advice now!</h3>
           <p>Upload a clear photo + describe the issue (yellow leaves, spots, wilting, etc.)</p>
 
-          <input 
-            type="file" 
-            accept="image/*" 
+          <input
+            type="file"
+            accept="image/*"
             onChange={(e) => {
               setPhoto(e.target.files[0]);
               setErrorMessage("");
             }}
           />
 
-          <textarea 
-            placeholder="Describe the problem in detail..." 
+          <textarea
+            placeholder="Describe the problem in detail..."
             rows="5"
             value={description}
             onChange={(e) => {
@@ -154,7 +183,7 @@ function HomePage() {
 
           {errorMessage && <p style={{ color: "#d32f2f", margin: "10px 0" }}>{errorMessage}</p>}
 
-          <button 
+          <button
             className="upload-btn"
             onClick={handleSubmit}
             disabled={uploading}
@@ -172,16 +201,16 @@ function HomePage() {
         <p className="tagline">We don’t sell plants. We save plants. 💚</p>
 
         {/* Navigation Links */}
-        <div style={{ margin: '40px 0', textAlign: 'center' }}>
-          <Link to="/student" style={{ color: '#4caf50', fontSize: '1.3rem', fontWeight: 'bold', margin: '0 20px', textDecoration: 'none' }}>
+        <div style={{ margin: '40px 0', textAlign: 'center', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px' }}>
+          <Link to="/student" style={{ color: '#4caf50', fontSize: '1.3rem', fontWeight: 'bold', textDecoration: 'none' }}>
             → Student Dashboard
           </Link>
-          <Link to="/all-queries" style={{ color: '#4caf50', fontSize: '1.3rem', fontWeight: 'bold', margin: '0 20px', textDecoration: 'none' }}>
+          <Link to="/all-queries" style={{ color: '#4caf50', fontSize: '1.3rem', fontWeight: 'bold', textDecoration: 'none' }}>
             → Community Queries
           </Link>
-          <Link to="/shop" style={{ color: '#4caf50', fontSize: '1.3rem', fontWeight: 'bold', margin: '0 20px', textDecoration: 'none' }}>
-  → Shop Organic Products
-</Link>
+          <Link to="/shop" style={{ color: '#4caf50', fontSize: '1.3rem', fontWeight: 'bold', textDecoration: 'none' }}>
+            → Shop Organic Products
+          </Link>
         </div>
       </header>
     </div>
